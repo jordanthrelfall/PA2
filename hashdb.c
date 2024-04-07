@@ -121,16 +121,37 @@ void delete_(char key[])
     return;
 }
 
-void test_print()
+void search_(char key[])
+{
+    uint32_t hash = hash_(key);
+
+    // Check if lock is available
+    
+    hashRecord *original = record;
+    hashRecord *prev = NULL;
+
+    while (record != NULL)
+    {
+        if (record->hash == hash)
+        {
+            printf("%d, %s, %d\n", record->hash, record->name, record->salary);
+            record = original;
+            return;
+        }
+        prev = record;
+        record = record->next;
+    }
+}
+
+void print_all()
 {
     hashRecord *original = record;
 
     while(record != NULL)
     {
-        printf("%d %s %d -> ", record->hash, record->name, record->salary);
+        printf("%d, %s, %d\n", record->hash, record->name, record->salary);
         record = record->next;
     }
-    printf("\n");
     record = original;
 
     return;
@@ -146,13 +167,16 @@ void main()
     insert_(c2, 100);
     insert_(c3, 15000);
     insert_(c4, 5000);
-    test_print();
+    print_all();
     insert_(c3, 1000);
-    test_print();
+    search_(c1);
+    search_(c3);
+
+    print_all();
     delete_(c3);
-    test_print();
+    print_all();
     delete_(c4);
-    test_print();
+    print_all();
     delete_(c1);
-    test_print();
+    print_all();
 }
