@@ -13,6 +13,8 @@ typedef struct hash_struct
   struct hash_struct *next;
 } hashRecord;
 
+hashRecord *record;
+
 struct hash_struct *createRecord(uint32_t hash, char key[], uint32_t value);
 
 void insert_(char key[], uint32_t value); // the key is the name

@@ -1,7 +1,5 @@
 #include "hashdb.h"
 
-hashRecord *record;
-
 hashRecord *createRecord(uint32_t hash, char key[], uint32_t value)
 {
     hashRecord *node = malloc(sizeof(hashRecord));
@@ -141,42 +139,4 @@ void search_(char key[])
         prev = record;
         record = record->next;
     }
-}
-
-void print_all()
-{
-    hashRecord *original = record;
-
-    while(record != NULL)
-    {
-        printf("%d, %s, %d\n", record->hash, record->name, record->salary);
-        record = record->next;
-    }
-    record = original;
-
-    return;
-}
-
-void main()
-{
-    char c1[] = "A";
-    char c2[] = "B";
-    char c3[] = "C";
-    char c4[] = "D";
-    insert_(c1, 10000);
-    insert_(c2, 100);
-    insert_(c3, 15000);
-    insert_(c4, 5000);
-    print_all();
-    insert_(c3, 1000);
-    search_(c1);
-    search_(c3);
-
-    print_all();
-    delete_(c3);
-    print_all();
-    delete_(c4);
-    print_all();
-    delete_(c1);
-    print_all();
 }
