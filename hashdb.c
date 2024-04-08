@@ -15,23 +15,26 @@ hashRecord *createRecord(uint32_t hash, char key[], uint32_t value)
     return node;
 }
 
-// THIS IS NOT THE ACTUAL HASH FUNCTION, FOR TESTING ONLY!
-uint32_t hash_(char key[])
+// Jenkins's one_at_a_time hash function
+uint32_t one_at_a_time_hash(const char* key, size_t length)
 {
-    int i = 0;
+    size_t i = 0;
     uint32_t hash = 0;
-    while(key[i] != '\0')
-    {
-        hash += (int)key[i++];
+    while (i != length) {
+        hash += key[i++];
+        hash += hash << 10;
+        hash ^= hash >> 6;
     }
-
+    hash += hash << 3;
+    hash ^= hash >> 11;
+    hash += hash << 15;
     return hash;
 }
 
 void insert_(char key[], uint32_t value)
 {
     // Calculate the hash for this key
-    uint32_t hash = hash_(key);
+    uint32_t hash = one_at_a_time_hash(key);
 
     // write lock
 
@@ -77,7 +80,7 @@ void insert_(char key[], uint32_t value)
 void delete_(char key[])
 {
     // Calculate the hash for this key
-    uint32_t hash = hash_(key);
+    uint32_t hash = one_at_a_time_hash(key);
 
     // write lock
 
@@ -121,7 +124,7 @@ void delete_(char key[])
 
 void search_(char key[])
 {
-    uint32_t hash = hash_(key);
+    uint32_t hash = one_at_a_time_hash(key);
 
     // Check if lock is available
     
