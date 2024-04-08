@@ -17,15 +17,14 @@ hashRecord *record;
 
 struct hash_struct *createRecord(uint32_t hash, char key[], uint32_t value);
 
+uint32_t one_at_a_time_hash(const char* key);
+
 void insert_(char key[], uint32_t value); // the key is the name
 
 void delete_(char key[]); // delete is a keyword and couldn't be used
 
 void search_(char key[]); // IF USING READ LOCKS CAN'T SEARCH WITH RECORD ITSELF OR IT'LL MESS UP OTHER SEARCH THREADS
 
-uint32_t hash_(char key[]);
-
-void test_print(); // Can remove later
 
 
 
