@@ -34,8 +34,6 @@ int read_loops;
 int write_loops;
 int counter = 0;
 
-rwlock_t mutex;
-
 void *reader(void *arg) {
     int i;
     int local = 0;
