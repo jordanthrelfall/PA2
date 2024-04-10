@@ -136,7 +136,7 @@ void search_(char key[])
     {
         if (record->hash == hash)
         {
-            printf("%d, %s, %d\n", record->hash, record->name, record->salary);
+            printf("%u, %s, %u\n", record->hash, record->name, record->salary);
             record = original;
             return;
         }
