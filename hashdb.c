@@ -16,8 +16,9 @@ hashRecord *createRecord(uint32_t hash, char key[], uint32_t value)
 }
 
 // Jenkins's one_at_a_time hash function
-uint32_t one_at_a_time_hash(const char* key, size_t length)
+uint32_t one_at_a_time_hash(const char* key)
 {
+    size_t length = strlen(key);
     size_t i = 0;
     uint32_t hash = 0;
     while (i != length) {
