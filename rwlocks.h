@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "common_threads.h"
+#include "pthread.h"
 
 typedef struct _rwlock_t {
     sem_t writelock;
