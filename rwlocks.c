@@ -58,7 +58,7 @@ void *writer(void *arg) {
     return NULL;
 }
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
     if (argc != 3) {
 	fprintf(stderr, "usage: rwlock readloops writeloops\n");
 	exit(1);
@@ -74,5 +74,5 @@ int main(int argc, char *argv[]) {
     Pthread_join(c2, NULL);
     printf("all done\n");
     return 0;
-}
+}*/
     
