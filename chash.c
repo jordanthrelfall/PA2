@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "hashdb.h"
-#include "hashdb.c"
+#include "rwlocks.h"
 
 
 void print_all()
@@ -13,17 +13,12 @@ void print_all()
 
     while(record != NULL)
     {
-        printf("%d, %s, %d\n", record->hash, record->name, record->salary);
+        printf("%u, %s, %u\n", record->hash, record->name, record->salary);
         record = record->next;
     }
     record = original;
 
     return;
-}
-
-void print_search()
-{
-    
 }
 
 // reads and splits the command ling into 3 parameters
@@ -70,9 +65,14 @@ int main(void)
       exit(0);
     }
     print_command_line(parameter1, parameter2, parameter3);
+
+    rwlock_init(&mutex); 
     
     // read and process the rest of the commands
     int num_of_commands = atoi(parameter2);
+    pthread_t threads[num_of_commands];
+
+
     for(int i=0; i<num_of_commands; i++) 
     {
         read_line(inputFile, parameter1, parameter2, parameter3);
@@ -80,43 +80,33 @@ int main(void)
         if(strcmp(parameter1, "insert") == 0) 
         {
             char* endptr;
-            insert_(parameter2, (uint32_t)strtoul(parameter3, &endptr, 10));
-        } else if(strcmp(parameter1, "delete") == 0) 
+            insert_struct s = {parameter2, (uint32_t)strtoul(parameter3, &endptr, 10)};
+            Pthread_create(&threads[i], NULL, insert_, (void *)&s);
+        } 
+        else if(strcmp(parameter1, "delete") == 0) 
         {
-            delete_(parameter2);
-        } else if(strcmp(parameter1, "search") == 0) 
+            Pthread_create(&threads[i], NULL, delete_, (void *)parameter2);
+            //delete_(parameter2);
+        } 
+        else if(strcmp(parameter1, "search") == 0) 
         {
-            search_(parameter2);
-        } else if(strcmp(parameter1, "print") == 0) 
+            Pthread_create(&threads[i], NULL, search_, (void *)parameter2);
+            //search_(parameter2);
+        } 
+        else if(strcmp(parameter1, "print") == 0) 
         {
             print_all();
-        } else {
+        } 
+        else {
             fprintf(stderr, "Error occurred. Invalid command: %s", parameter1);
             exit(0);
         }
     }
 
-    // if record changes, make sure it gets updated here
-    
-    char c1[] = "A";
-    char c2[] = "B";
-    char c3[] = "C";
-    char c4[] = "D";
-    insert_(c1, 10000);
-    insert_(c2, 100);
-    insert_(c3, 15000);
-    insert_(c4, 5000);
-    print_all();
-    insert_(c3, 1000);
-    search_(c1);
-    search_(c3);
-    print_all();
-    delete_(c3);
-    print_all();
-    delete_(c4);
-    print_all();
-    delete_(c1);
-    print_all();
+    for (int i = 0; i < num_of_commands; i++)
+    {
+        Pthread_join(&threads[i], null);
+    }
 
     // OUTPUT
 

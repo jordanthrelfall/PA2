@@ -13,6 +13,12 @@ typedef struct hash_struct
   struct hash_struct *next;
 } hashRecord;
 
+typedef struct insert_struct
+{
+  char name[50];
+  uint32_t salary;
+} insert_struct;
+
 hashRecord *record;
 
 struct hash_struct *createRecord(uint32_t hash, char key[], uint32_t value);
