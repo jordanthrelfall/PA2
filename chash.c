@@ -97,6 +97,7 @@ int main(void)
     int num_lock_aq = 0;
     int num_lock_rel = 0;
 
+    printf("\n");
     printf("Number of lock aquisitions: %d\n", num_lock_aq);
     printf("Number of lock releases: %d\n", num_lock_rel);
     printf("Final Table:\n");
