@@ -1,6 +1,8 @@
 #include "hashdb.h"
 
-hashRecord *createRecord(uint32_t hash, char key[], uint32_t value)
+hashRecord *record = NULL;
+
+hashRecord *createRecord(uint32_t hash, char* key, uint32_t value)
 {
     hashRecord *node = malloc(sizeof(hashRecord));
 
@@ -9,6 +11,7 @@ hashRecord *createRecord(uint32_t hash, char key[], uint32_t value)
 
     node->hash = hash;
     strcpy(node->name, key);
+    //node->name = key;
     node->salary = value;
     node->next = NULL;
 
@@ -33,22 +36,27 @@ uint32_t one_at_a_time_hash(const char* key)
     return hash;
 }
 
-void insert_(char key[], uint32_t value)
+void *insert_(insert_struct* s)
 {
+    printf("Hey");
+    fflush(stdout);
     // Calculate the hash for this key
-    uint32_t hash = one_at_a_time_hash(key);
+    uint32_t hash = one_at_a_time_hash(s->name);
 
     // write lock
+    printf("here");
+    fflush(stdout);
 
     if (record == NULL)
     {
-        record = createRecord(hash, key, value);
+        record = createRecord(hash, s->name, s->salary);
         return;
     }
-
+    printf("here2");
+    fflush(stdout);
     if (record->hash == hash)
     {
-        record->salary = value;
+        record->salary = s->salary;
         return;
     }
 
@@ -61,7 +69,7 @@ void insert_(char key[], uint32_t value)
 
         if (record->hash == hash)
         {
-            record->salary = value;
+            record->salary = s->salary;
             flag = 1;
             break;
         }
@@ -69,17 +77,17 @@ void insert_(char key[], uint32_t value)
 
     if (flag != 1)
     {
-        record->next = createRecord(hash, key, value);
+        record->next = createRecord(hash, s->name, s->salary);
     }
 
     record = original; // return the original head
 
     // write lock
 
-    return;
+    return NULL;
 }
 
-void delete_(char key[])
+void *delete_(char key[])
 {
     // Calculate the hash for this key
     uint32_t hash = one_at_a_time_hash(key);
@@ -121,10 +129,10 @@ void delete_(char key[])
 
     // write lock
 
-    return;
+    return NULL;
 }
 
-void search_(char key[])
+void* search_(char key[])
 {
     uint32_t hash = one_at_a_time_hash(key);
 
@@ -144,4 +152,5 @@ void search_(char key[])
         prev = record;
         record = record->next;
     }
+    return NULL;
 }

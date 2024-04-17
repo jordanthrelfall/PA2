@@ -21,6 +21,12 @@ void print_all()
     return;
 }
 
+void *testing(void*)
+{
+    printf("A");
+    return NULL;
+}
+
 // reads and splits the command ling into 3 parameters
 void read_line(FILE *input, char *para1, char *para2, char *para3) {
     char input_line[70], ch; //7+2+50+10+'\0'=70
@@ -77,35 +83,46 @@ int main(void)
     {
         read_line(inputFile, parameter1, parameter2, parameter3);
         print_command_line(parameter1, parameter2, parameter3);
+
+        
         if(strcmp(parameter1, "insert") == 0) 
         {
             char* endptr;
-            insert_struct s = {parameter2, (uint32_t)strtoul(parameter3, &endptr, 10)};
-            Pthread_create(&threads[i], NULL, insert_, (void *)&s);
+            insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
+            if (s == NULL)
+            {
+                fprintf(stderr, "Memory Allocation Error");
+            }
+            strcpy(s->name, parameter2);
+            s->salary = (uint32_t)strtoul(parameter3, &endptr, 10);
+            pthread_create(&threads[i], NULL, insert_, (void *)s);
         } 
-        else if(strcmp(parameter1, "delete") == 0) 
-        {
-            Pthread_create(&threads[i], NULL, delete_, (void *)parameter2);
-            //delete_(parameter2);
-        } 
-        else if(strcmp(parameter1, "search") == 0) 
-        {
-            Pthread_create(&threads[i], NULL, search_, (void *)parameter2);
-            //search_(parameter2);
-        } 
-        else if(strcmp(parameter1, "print") == 0) 
-        {
-            print_all();
-        } 
-        else {
-            fprintf(stderr, "Error occurred. Invalid command: %s", parameter1);
-            exit(0);
+        else{
+            pthread_create(&threads[i], NULL, testing, NULL);
         }
+        // else if(strcmp(parameter1, "delete") == 0) 
+        // {
+        //     Pthread_create(threads[i], NULL, delete_, (void*)strdup(parameter2));
+        //     //delete_(parameter2);
+        // } 
+        // else if(strcmp(parameter1, "search") == 0) 
+        // {
+        //     Pthread_create(threads[i], NULL, search_, (void*)strdup(parameter2));
+        //     //search_(parameter2);
+        // } 
+        // else if(strcmp(parameter1, "print") == 0) 
+        // {
+        //     print_all();
+        // } 
+        // else {
+        //     fprintf(stderr, "Error occurred. Invalid command: %s", parameter1);
+        //     exit(0);
+        // }
     }
 
     for (int i = 0; i < num_of_commands; i++)
     {
-        Pthread_join(&threads[i], null);
+        pthread_join(threads[i], NULL);
     }
 
     // OUTPUT

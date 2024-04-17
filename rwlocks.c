@@ -1,5 +1,7 @@
 #include "rwlocks.h"
 
+rwlock_t mutex;
+
 void rwlock_init(rwlock_t *lock) {
     lock->readers = 0;
     Sem_init(&lock->lock, 1); 
@@ -34,29 +36,29 @@ int read_loops;
 int write_loops;
 int counter = 0;
 
-void *reader(void *arg) {
-    int i;
-    int local = 0;
-    for (i = 0; i < read_loops; i++) {
-	rwlock_acquire_readlock(&mutex);
-	local = counter;
-	rwlock_release_readlock(&mutex);
-	printf("read %d\n", local);
-    }
-    printf("read done: %d\n", local);
-    return NULL;
-}
+// void *reader(void *arg) {
+//     int i;
+//     int local = 0;
+//     for (i = 0; i < read_loops; i++) {
+// 	rwlock_acquire_readlock(&mutex);
+// 	local = counter;
+// 	rwlock_release_readlock(&mutex);
+// 	printf("read %d\n", local);
+//     }
+//     printf("read done: %d\n", local);
+//     return NULL;
+// }
 
-void *writer(void *arg) {
-    int i;
-    for (i = 0; i < write_loops; i++) {
-	rwlock_acquire_writelock(&mutex);
-	counter++;
-	rwlock_release_writelock(&mutex);
-    }
-    printf("write done\n");
-    return NULL;
-}
+// void *writer(void *arg) {
+//     int i;
+//     for (i = 0; i < write_loops; i++) {
+// 	rwlock_acquire_writelock(&mutex);
+// 	counter++;
+// 	rwlock_release_writelock(&mutex);
+//     }
+//     printf("write done\n");
+//     return NULL;
+// }
 
 /*
 int main(int argc, char *argv[]) {

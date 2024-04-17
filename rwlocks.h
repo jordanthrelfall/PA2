@@ -26,7 +26,7 @@ void rwlock_acquire_writelock(rwlock_t *lock); //acquire the read lock
 
 void rwlock_release_writelock(rwlock_t *lock); //release the write lock
 
-rwlock_t mutex;
+extern rwlock_t mutex;
 
 void *reader(void *arg);
 
