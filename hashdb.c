@@ -4,34 +4,23 @@ hashRecord *record = NULL;
 
 hashRecord *createRecord(uint32_t hash, char* key, uint32_t value)
 {
-    printf("In Create\n");
-    fflush(stdout);
+    // printf("In Create\n");
+    // fflush(stdout);
     hashRecord *node = malloc(sizeof(hashRecord));
 
-    printf("Complete Malloc\n");
-    fflush(stdout);
+    // printf("Complete Malloc\n");
+    // fflush(stdout);
     if (node == NULL)
         return NULL;
 
-    printf("After check\n");
-    fflush(stdout);
+    // printf("After check\n");
+    // fflush(stdout);
 
     node->hash = hash;
-    printf("1\n");
-        fflush(stdout);
     strcpy(node->name, key);
-    printf("2\n");
-        fflush(stdout);
     //node->name = key;
     node->salary = value;
-    printf("3\n");
-        fflush(stdout);
     node->next = NULL;
-    printf("4\n");
-        fflush(stdout);
-
-    printf("5\n");
-    fflush(stdout);
 
     return node;
 }
@@ -75,95 +64,94 @@ void print_command_line(char *command, char *para2) {
     }
 }
 
-void *insert_(insert_struct* s)
+// void *insert_(insert_struct* s)
+// {
+//     // Calculate the hash for this key
+//     uint32_t hash = one_at_a_time_hash(s->name);
+//     print_command_line(s->param1, s->param2);
+//     printf("%u,%s,%s\n",hash,s->param2,s->param3);
+
+//     // write lock
+//     rwlock_acquire_writelock(&mutex);
+    
+//     if (record != NULL)
+//     {  
+//         int flag = 0;
+//         hashRecord *original = record;
+//         while(record != NULL)
+//         {
+//             if (record->hash == hash)
+//             {
+//                 record->salary = s->salary;
+//                 flag = 1;
+//                 break;
+//             }
+//             record = record->next;
+//         }
+//         if (flag != 1)
+//         {
+            
+//             record = createRecord(hash, s->name, s->salary);
+//         }
+
+//         record = original; // return the original head
+//     }
+//     else
+//     {
+//         record = createRecord(hash, s->name, s->salary);
+//     }
+
+//     // write lock
+//     rwlock_release_writelock(&mutex);
+
+//     return NULL;
+// }
+
+void* insert_(insert_struct* s)
 {
-    printf("1\n");
-    fflush(stdout);
     // Calculate the hash for this key
     uint32_t hash = one_at_a_time_hash(s->name);
-    printf("2\n");
-    fflush(stdout);
     print_command_line(s->param1, s->param2);
-    printf("3\n");
-    fflush(stdout);
+    printf("%u,%s,%s\n",hash,s->param2,s->param3);
 
     // write lock
     rwlock_acquire_writelock(&mutex);
-    
-    printf("4\n");
-    fflush(stdout);
-    if (record != NULL)
-    {  
-        int flag = 0;
-        hashRecord *original = record;
-        printf("5\n");
-        fflush(stdout);
-        while(record != NULL)
-        {
-            printf("Loop\n");
-            fflush(stdout);
-            if (record->hash == hash)
-            {
-                printf("Found\n");
-                fflush(stdout);
-                record->salary = s->salary;
-                flag = 1;
-                break;
-            }
-            record = record->next;
-        }
-        if (flag != 1)
-        {
-            printf("Not Found\n");
-            fflush(stdout);
-            
-            record = createRecord(hash, s->name, s->salary);
-            printf("After Create\n");
-            fflush(stdout);
-        }
 
-        // if (record->hash == hash)
-        // {
-        //     record->salary = s->salary;
-            
-        // }
-
-        // hashRecord *original = record;
-        // int flag = 0; // if 1 we found it and updated it
-        
-        // while(record->next != NULL)
-        // {
-        //     record = record->next;
-
-        //     if (record->hash == hash)
-        //     {
-        //         record->salary = s->salary;
-        //         flag = 1;
-        //         break;
-        //     }
-        // }
-
-        // if (flag != 1)
-        // {
-        //     record->next = createRecord(hash, s->name, s->salary);
-        // }
-        printf("%u,%s,%s\n",hash,s->name,s->salary);
-        record = original; // return the original head
-    }
-    else
+    if (record == NULL)
     {
-        printf("Create head\n");
-        fflush(stdout);
         record = createRecord(hash, s->name, s->salary);
-        printf("%u,%s,%s\n",hash,s->name,s->salary);
+        rwlock_release_writelock(&mutex);
+        return NULL;
     }
-    printf("Before release\n");
-    fflush(stdout);
 
+    if (record->hash == hash)
+    {
+        record->salary = s->salary;
+        rwlock_release_writelock(&mutex);
+        return NULL;
+    }
+
+    hashRecord *original = record;
+    int flag = 0; // if 1 we found it and updated it
+    
+    while(record->next != NULL)
+    {
+        record = record->next;
+
+        if (record->hash == hash)
+        {
+            record->salary = s->salary;
+            flag = 1;
+            break;
+        }
+    }
+    if (flag != 1)
+    {
+        record->next = createRecord(hash, s->name, s->salary);
+    }
+    record = original; // return the original head
     // write lock
     rwlock_release_writelock(&mutex);
-    printf("7\n");
-    fflush(stdout);
 
     return NULL;
 }
@@ -235,7 +223,8 @@ void* search_(insert_struct* s)
             if (original->hash == hash)
             {
                 printf("%d, %s, %d\n", original->hash, original->name, original->salary);
-                return;
+                rwlock_release_readlock(&mutex);
+                return NULL;
             }
             prev = original;
             original = original->next;

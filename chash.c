@@ -73,47 +73,49 @@ int main(void)
             strcpy(s->param1, parameter1);
             strcpy(s->param2, parameter2);
             strcpy(s->param3, parameter3);
-            //pthread_create(&threads[i], NULL, insert_, (void *)s);
-            insert_(s);
+            pthread_create(&threads[i], NULL, insert_, (void *)s);
+            //insert_(s);
         } 
-        // else if (strcmp(parameter1, "delete") == 0)
-        // {
-        //     insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
-        //     if (s == NULL)
-        //     {
-        //         fprintf(stderr, "Memory Allocation Error");
-        //     }
-        //     strcpy(s->name, parameter2);
-        //     s->salary = (uint32_t)0;
-        //     strcpy(s->param1, parameter1);
-        //     strcpy(s->param2, parameter2);
-        //     strcpy(s->param3, parameter3);
-        //     pthread_create(&threads[i], NULL, delete_, (void *)s);
-        // }
-        // else if (strcmp(parameter1, "search") == 0)
-        // {
-        //     insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
-        //     if (s == NULL)
-        //     {
-        //         fprintf(stderr, "Memory Allocation Error");
-        //     }
-        //     strcpy(s->name, parameter2);
-        //     s->salary = (uint32_t)0;
-        //     strcpy(s->param1, parameter1);
-        //     strcpy(s->param2, parameter2);
-        //     strcpy(s->param3, parameter3);
-        //     pthread_create(&threads[i], NULL, search_, (void *)s);
-        // }
-        // else if(strcmp(parameter1, "print") == 0) 
-        // {
+        else if (strcmp(parameter1, "delete") == 0)
+        {
+            insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
+            if (s == NULL)
+            {
+                fprintf(stderr, "Memory Allocation Error");
+            }
+            strcpy(s->name, parameter2);
+            s->salary = (uint32_t)0;
+            strcpy(s->param1, parameter1);
+            strcpy(s->param2, parameter2);
+            strcpy(s->param3, parameter3);
+            pthread_create(&threads[i], NULL, delete_, (void *)s);
+            //delete_(s);
+        }
+        else if (strcmp(parameter1, "search") == 0)
+        {
+            insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
+            if (s == NULL)
+            {
+                fprintf(stderr, "Memory Allocation Error");
+            }
+            strcpy(s->name, parameter2);
+            s->salary = (uint32_t)0;
+            strcpy(s->param1, parameter1);
+            strcpy(s->param2, parameter2);
+            strcpy(s->param3, parameter3);
+            pthread_create(&threads[i], NULL, search_, (void *)s);
+            //search_(s);
+        }
+        else if(strcmp(parameter1, "print") == 0) 
+        {
             
-        //     pthread_create(&threads[i], NULL, print_all, NULL);
+            pthread_create(&threads[i], NULL, print_all, NULL);
             
-        // } 
-        // else {
-        //     fprintf(stderr, "Error occurred. Invalid command: %s", parameter1);
-        //     exit(0);
-        // }
+        } 
+        else {
+            fprintf(stderr, "Error occurred. Invalid command: %s", parameter1);
+            exit(0);
+        }
     }
 
 
@@ -122,7 +124,7 @@ int main(void)
         pthread_join(threads[i], NULL);
     }
 
-    print_all(NULL);
+    //print_all(NULL);
 
     // OUTPUT
 
@@ -133,5 +135,5 @@ int main(void)
     printf("Number of lock aquisitions: %d\n", num_lock_aq);
     printf("Number of lock releases: %d\n", num_lock_rel);
     printf("Final Table:\n");
-    print_all(record);
+    print_all(NULL);
 }
