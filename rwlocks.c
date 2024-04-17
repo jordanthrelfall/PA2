@@ -1,5 +1,7 @@
 #include "rwlocks.h"
 
+rwlock_t mutex;
+
 void rwlock_init(rwlock_t *lock) {
     lock->readers = 0;
     Sem_init(&lock->lock, 1); 
