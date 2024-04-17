@@ -6,27 +6,6 @@
 #include "hashdb.h"
 #include "rwlocks.h"
 
-
-void print_all()
-{
-    hashRecord *original = record;
-
-    while(record != NULL)
-    {
-        printf("%u, %s, %u\n", record->hash, record->name, record->salary);
-        record = record->next;
-    }
-    record = original;
-
-    return;
-}
-
-void *testing(void*)
-{
-    printf("A");
-    return NULL;
-}
-
 // reads and splits the command ling into 3 parameters
 void read_line(FILE *input, char *para1, char *para2, char *para3) {
     char input_line[70], ch; //7+2+50+10+'\0'=70
@@ -36,17 +15,6 @@ void read_line(FILE *input, char *para1, char *para2, char *para3) {
     strcpy(para2, input_line);
     fscanf(input, "%[^,\n]%c", input_line, &ch);
     strcpy(para3, input_line);
-}
-
-// prints a command line
-void print_command_line(char *command, char *para2, char *para3) {
-    //uppercase the command name
-    char para1[8];
-    strcpy(para1, command);
-    for(int i=0; para1[i]!='\0'; i++)
-        para1[i] = toupper((char)para1[i]);
-
-    printf("%s,%s,%s\n", para1, para2, para3);
 }
 
 int main(void)
@@ -59,6 +27,11 @@ int main(void)
       fprintf(stderr, "Could not open file. Error occurred.");
       exit(0);
     }
+    FILE *outputFile = fopen("output.txt", "w");
+    if (outputFile == NULL) {
+        fprintf(stderr, "Cold not open file. Error occured.\n");
+        return 1;
+    }
     
     // parameter variables + others
     char parameter1[8], parameter2[51], parameter3[11];
@@ -70,7 +43,8 @@ int main(void)
       fprintf(stderr, "Error occurred. First command should be \"threads\".");
       exit(0);
     }
-    print_command_line(parameter1, parameter2, parameter3);
+    //print_command_line(parameter1, parameter2, parameter3);
+    fprintf(outputFile, "Running %s threads\n", parameter2);
 
     rwlock_init(&mutex); 
     
@@ -82,7 +56,8 @@ int main(void)
     for(int i=0; i<num_of_commands; i++) 
     {
         read_line(inputFile, parameter1, parameter2, parameter3);
-        print_command_line(parameter1, parameter2, parameter3);
+        //printf("%s,%s,%s\n",parameter1,parameter2,parameter3);
+        //print_command_line(parameter1, parameter2);
 
         
         if(strcmp(parameter1, "insert") == 0) 
@@ -95,24 +70,45 @@ int main(void)
             }
             strcpy(s->name, parameter2);
             s->salary = (uint32_t)strtoul(parameter3, &endptr, 10);
-            pthread_create(&threads[i], NULL, insert_, (void *)s);
+            strcpy(s->param1, parameter1);
+            strcpy(s->param2, parameter2);
+            strcpy(s->param3, parameter3);
+            //pthread_create(&threads[i], NULL, insert_, (void *)s);
+            insert_(s);
         } 
-        else{
-            pthread_create(&threads[i], NULL, testing, NULL);
-        }
-        // else if(strcmp(parameter1, "delete") == 0) 
+        // else if (strcmp(parameter1, "delete") == 0)
         // {
-        //     Pthread_create(threads[i], NULL, delete_, (void*)strdup(parameter2));
-        //     //delete_(parameter2);
-        // } 
-        // else if(strcmp(parameter1, "search") == 0) 
+        //     insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
+        //     if (s == NULL)
+        //     {
+        //         fprintf(stderr, "Memory Allocation Error");
+        //     }
+        //     strcpy(s->name, parameter2);
+        //     s->salary = (uint32_t)0;
+        //     strcpy(s->param1, parameter1);
+        //     strcpy(s->param2, parameter2);
+        //     strcpy(s->param3, parameter3);
+        //     pthread_create(&threads[i], NULL, delete_, (void *)s);
+        // }
+        // else if (strcmp(parameter1, "search") == 0)
         // {
-        //     Pthread_create(threads[i], NULL, search_, (void*)strdup(parameter2));
-        //     //search_(parameter2);
-        // } 
+        //     insert_struct* s = (insert_struct*)malloc(sizeof(insert_struct));
+        //     if (s == NULL)
+        //     {
+        //         fprintf(stderr, "Memory Allocation Error");
+        //     }
+        //     strcpy(s->name, parameter2);
+        //     s->salary = (uint32_t)0;
+        //     strcpy(s->param1, parameter1);
+        //     strcpy(s->param2, parameter2);
+        //     strcpy(s->param3, parameter3);
+        //     pthread_create(&threads[i], NULL, search_, (void *)s);
+        // }
         // else if(strcmp(parameter1, "print") == 0) 
         // {
-        //     print_all();
+            
+        //     pthread_create(&threads[i], NULL, print_all, NULL);
+            
         // } 
         // else {
         //     fprintf(stderr, "Error occurred. Invalid command: %s", parameter1);
@@ -120,10 +116,13 @@ int main(void)
         // }
     }
 
+
     for (int i = 0; i < num_of_commands; i++)
     {
         pthread_join(threads[i], NULL);
     }
+
+    print_all(NULL);
 
     // OUTPUT
 
