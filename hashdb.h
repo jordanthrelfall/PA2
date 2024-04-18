@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "rwlocks.h"
+#include "chash.h"
 
 typedef struct hash_struct
 {
@@ -24,7 +25,6 @@ typedef struct insert_struct
 } insert_struct;
 
 extern hashRecord *record;
-extern FILE *outputFile;
 
 struct hash_struct *createRecord(uint32_t hash, char key[], uint32_t value);
 

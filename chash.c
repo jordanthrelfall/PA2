@@ -1,10 +1,7 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include "hashdb.h"
-#include "rwlocks.h"
+
+#include "chash.h"
+
+FILE* outputFile;
 
 // reads and splits the command ling into 3 parameters
 void read_line(FILE *input, char *para1, char *para2, char *para3) {
@@ -27,7 +24,7 @@ int main(void)
       fprintf(stderr, "Could not open file. Error occurred.");
       exit(0);
     }
-    FILE *outputFile = fopen("output.txt", "w");
+    outputFile = fopen("output.txt", "w");
     if (outputFile == NULL) {
         fprintf(stderr, "Cold not open file. Error occured.\n");
         return 1;
@@ -46,7 +43,8 @@ int main(void)
     //print_command_line(parameter1, parameter2, parameter3);
     fprintf(outputFile, "Running %s threads\n", parameter2);
 
-    rwlock_init(&mutex); 
+    rwlock_init(&mutex);
+    rwlock_init(&count);
     
     // read and process the rest of the commands
     int num_of_commands = atoi(parameter2);
@@ -56,9 +54,6 @@ int main(void)
     for(int i=0; i<num_of_commands; i++) 
     {
         read_line(inputFile, parameter1, parameter2, parameter3);
-        //printf("%s,%s,%s\n",parameter1,parameter2,parameter3);
-        //print_command_line(parameter1, parameter2);
-
         
         if(strcmp(parameter1, "insert") == 0) 
         {
@@ -129,11 +124,11 @@ int main(void)
     // OUTPUT
 
     // THESE WILL BE UPDATED WITH VALUES OBTAINED
-    int num_lock_aq = 0;
-    int num_lock_rel = 0;
 
-    printf("Number of lock aquisitions: %d\n", num_lock_aq);
-    printf("Number of lock releases: %d\n", num_lock_rel);
-    printf("Final Table:\n");
+    fprintf(outputFile,"Number of lock aquisitions:  %d\n", num_lock_aq);
+    fprintf(outputFile,"Number of lock releases:  %d\n", num_lock_rel);
+    fprintf(outputFile,"Final Table:\n");
     print_all(NULL);
+    fclose(inputFile);
+    fclose(outputFile);
 }

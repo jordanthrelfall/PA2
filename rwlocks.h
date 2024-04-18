@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "common_threads.h"
+#include "chash.h"
 
 typedef struct _rwlock_t {
     sem_t writelock;
@@ -26,10 +27,13 @@ void rwlock_acquire_writelock(rwlock_t *lock); //acquire the read lock
 
 void rwlock_release_writelock(rwlock_t *lock); //release the write lock
 
+void countAcquired();
+
+void countReleased();
+
 extern rwlock_t mutex;
-
-void *reader(void *arg);
-
-void *writer(void *arg);
+extern rwlock_t count;
+extern int num_lock_aq;
+extern int num_lock_rel;
 
 #endif // __rwlocks_h__

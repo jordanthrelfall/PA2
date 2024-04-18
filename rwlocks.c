@@ -1,6 +1,9 @@
 #include "rwlocks.h"
 
 rwlock_t mutex;
+rwlock_t count;
+int num_lock_aq = 0;
+int num_lock_rel = 0;
 
 void rwlock_init(rwlock_t *lock) {
     lock->readers = 0;
@@ -10,7 +13,10 @@ void rwlock_init(rwlock_t *lock) {
 
 void rwlock_acquire_readlock(rwlock_t *lock) {
     Sem_wait(&lock->lock);
-    printf("Acquire Read Lock\n");
+    fprintf(outputFile,"READ LOCK ACQUIRED\n");
+    count_acquire_writelock(&count);
+    countAcquired();
+    count_release_writelock(&count);
     lock->readers++;
     if (lock->readers == 1)
 	Sem_wait(&lock->writelock);
@@ -19,7 +25,10 @@ void rwlock_acquire_readlock(rwlock_t *lock) {
 
 void rwlock_release_readlock(rwlock_t *lock) {
     Sem_wait(&lock->lock);
-    printf("Release Read Lock\n");
+    fprintf(outputFile,"READ LOCK RELEASED\n");
+    count_acquire_writelock(&count);
+    countReleased();
+    count_release_writelock(&count);
     lock->readers--;
     if (lock->readers == 0)
 	Sem_post(&lock->writelock);
@@ -28,58 +37,51 @@ void rwlock_release_readlock(rwlock_t *lock) {
 
 void rwlock_acquire_writelock(rwlock_t *lock) {
     Sem_wait(&lock->writelock);
-    printf("Acquire Write Lock\n");
+    fprintf(outputFile,"WRITE LOCK ACQUIRED\n");
+    count_acquire_writelock(&count);
+    countAcquired();
+    count_release_writelock(&count);
 }
 
 void rwlock_release_writelock(rwlock_t *lock) {
-    printf("Release Write Lock\n");
+    fprintf(outputFile,"WRITE LOCK RELEASED\n");
+    count_acquire_writelock(&count);
+    countReleased();
+    count_release_writelock(&count);
     Sem_post(&lock->writelock);
 }
 
-int read_loops;
-int write_loops;
-int counter = 0;
+void count_acquire_readlock(rwlock_t *lock) {
+    Sem_wait(&lock->lock);
+    lock->readers++;
+    if (lock->readers == 1)
+	Sem_wait(&lock->writelock);
+    Sem_post(&lock->lock);
+}
 
-// void *reader(void *arg) {
-//     int i;
-//     int local = 0;
-//     for (i = 0; i < read_loops; i++) {
-// 	rwlock_acquire_readlock(&mutex);
-// 	local = counter;
-// 	rwlock_release_readlock(&mutex);
-// 	printf("read %d\n", local);
-//     }
-//     printf("read done: %d\n", local);
-//     return NULL;
-// }
+void count_release_readlock(rwlock_t *lock) {
+    Sem_wait(&lock->lock);
+    lock->readers--;
+    if (lock->readers == 0)
+	Sem_post(&lock->writelock);
+    Sem_post(&lock->lock);
+}
 
-// void *writer(void *arg) {
-//     int i;
-//     for (i = 0; i < write_loops; i++) {
-// 	rwlock_acquire_writelock(&mutex);
-// 	counter++;
-// 	rwlock_release_writelock(&mutex);
-//     }
-//     printf("write done\n");
-//     return NULL;
-// }
+void count_acquire_writelock(rwlock_t *lock) {
+    Sem_wait(&lock->writelock);
+}
 
-/*
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-	fprintf(stderr, "usage: rwlock readloops writeloops\n");
-	exit(1);
-    }
-    read_loops = atoi(argv[1]);
-    write_loops = atoi(argv[2]);
-    
-    rwlock_init(&mutex); 
-    pthread_t c1, c2;
-    Pthread_create(&c1, NULL, reader, NULL);
-    Pthread_create(&c2, NULL, writer, NULL);
-    Pthread_join(c1, NULL);
-    Pthread_join(c2, NULL);
-    printf("all done\n");
-    return 0;
-}*/
-    
+void count_release_writelock(rwlock_t *lock) {
+    Sem_post(&lock->writelock);
+}
+
+void countAcquired()
+{
+    num_lock_aq++;
+}
+
+void countReleased()
+{
+    num_lock_rel++;
+}
+

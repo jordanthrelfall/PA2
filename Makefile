@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -pthread
 
 SRCS = chash.c hashdb.c rwlocks.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = common_threads.h common.h hashdb.h rwlocks.h
+HEADERS = common_threads.h common.h hashdb.h rwlocks.h chash.h
 
 TARGET = chash
 
