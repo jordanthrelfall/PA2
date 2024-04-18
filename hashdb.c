@@ -169,6 +169,7 @@ void* search_(insert_struct* s)
             original = original->next;
         }
     }
+    fprintf(outputFile,"No Record Found\n");
     // release read lock
     rwlock_release_readlock(&mutex);
     
