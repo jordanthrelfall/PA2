@@ -62,45 +62,34 @@ void* insert_(insert_struct* s)
     // Calculate the hash for this key
     uint32_t hash = one_at_a_time_hash(s->name);
     print_command_line(s->param1, s->param2);
-    fprintf(outputFile,"%u,%s,%s\n",hash,s->param2,s->param3);
+    fprintf(outputFile, "%u,%s,%s\n", hash, s->param2, s->param3);
 
     // write lock
     rwlock_acquire_writelock(&mutex);
 
-    if (record == NULL)
-    {
-        record = createRecord(hash, s->name, s->salary);
+    if (record == NULL || record->hash > hash) {
+        hashRecord *temp = createRecord(hash, s->name, s->salary);
+        temp->next = record;
+        record = temp;
+        // release write lock
         rwlock_release_writelock(&mutex);
         return NULL;
     }
 
-    if (record->hash == hash)
-    {
-        record->salary = s->salary;
-        rwlock_release_writelock(&mutex);
-        return NULL;
+    hashRecord *current = record;
+    while (current->next != NULL && current->next->hash < hash) {
+        current = current->next;
     }
 
-    hashRecord *original = record;
-    int flag = 0; // if 1 we found it and updated it
-    
-    while(record->next != NULL)
-    {
-        record = record->next;
+    if (current->next != NULL && current->next->hash == hash) {
+        current->next->salary = s->salary; // update existing record
+    } else {
+        hashRecord *temp = createRecord(hash, s->name, s->salary);
+        temp->next = current->next;
+        current->next = temp;
+    }
 
-        if (record->hash == hash)
-        {
-            record->salary = s->salary;
-            flag = 1;
-            break;
-        }
-    }
-    if (flag != 1)
-    {
-        record->next = createRecord(hash, s->name, s->salary);
-    }
-    record = original; // return the original head
-    // write lock
+    // release write lock
     rwlock_release_writelock(&mutex);
 
     return NULL;
